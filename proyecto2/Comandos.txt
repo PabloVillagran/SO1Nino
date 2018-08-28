@@ -1,0 +1,8 @@
+sudo apt-get install nasm build-essential
+nasm -f elf32 boot.asm -o boot.o
+gcc -m32 -c boot.c -o bootc.o
+
+sudo apt-get install xorriso
+ld -m  elf_i386 -T link.ld -o kernel boot.o bootc.o
+
+grub-mkrescue -o boot.iso kernel
