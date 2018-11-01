@@ -15,6 +15,7 @@ int equals(char * a, char * b);
 char * sumar(char * s1, char * s2);
 char * multi(char * s1, char * s2);
 char * divin(char * s1, char * s2);
+char * powe(char * s1, char * s2);
 void  *memset(void *b, int c, int len);
 void * clean(char * t);
 
@@ -147,7 +148,7 @@ char * funBegins(char * inp){
     }else if(equals(t1, "div")){
      return divin(t2, t3);
     }else if(equals(t1, "pow")){
-     return "POTENCIA";
+     return powe(t2, t3);
     }else if(equals(t1, "playdead")){
      return "APAGAR";
     }else if(equals(t1, "bark")){
@@ -175,6 +176,17 @@ char * divin(char * s1, char * s2){
   print("mod ");
    return itoa(i1 % i2, "", 10);}
  }
+}
+
+char * powe(char * s1, char * s2){
+ long base = atoi(s1);
+ long expo = atoi(s2);
+ long result = 1;
+ while(expo!= 0){
+  result *= base;
+  expo--;
+ }
+ return itoa(result, "", 10);
 }
 
 long atoi(char * c){
