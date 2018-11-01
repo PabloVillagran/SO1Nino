@@ -88,7 +88,10 @@ void kmain(void)
      print(input);
      position = (80*n);
      ++n;
-     print(funBegins(input));
+     char * inp = funBegins(input);
+     print(inp);
+     if(equals(inp, "APAGAR"))
+      break;
      
      //reset
      vm[position*2] = ' ';
@@ -105,6 +108,10 @@ void kmain(void)
    }
   }
  }
+
+ //INSERTAR LLAMADA PARA EL APAGADO DEL SISTEMA
+ print("DEAD");
+
  return;
 }
 

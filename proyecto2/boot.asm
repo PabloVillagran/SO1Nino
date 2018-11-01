@@ -19,6 +19,9 @@ start:
       call kmain ;llama al kernel
       hlt       ;permite interrupciones
 
+stop:
+
+
 section .bss
       ;seccion de bits vacios a manera de reservar memoria.
 stack_space: resb 8192 ;reserva 8KB para la pila de instrucciones
