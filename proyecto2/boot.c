@@ -13,12 +13,15 @@ int strlen(char * str);
 char * funBegins(char * inp);
 int equals(char * a, char * b);
 char * sumar(char * s1, char * s2);
+void  *memset(void *b, int c, int len);
+void * clean(char * t);
 
 #define OUTPUT_COLOR 0x0a
 #define BLINK_OUTPUT 0X8a
 #define DBCOLOR      0x17
 
 #include <sys/io.h>
+//include <string.h>
 
 _Bool shiftPressed;
 _Bool altPressed;
@@ -111,17 +114,26 @@ char * funBegins(char * inp){
     char t1[tokenEnd[0]];
     char t2[tokenEnd[1]-tokenEnd[0]];
     char t3[tokenEnd[2]-tokenEnd[1]-1];
+    clean(t1);
+    clean(t2);
+    clean(t3);
     for(p=0;p<=tokenEnd[0];p++){
         t1[p] = inp[p]; 
+        printc(inp[p], position++);
     }
+    position++;
     t1[p++] = '\0';
     for(q=0;q<tokenEnd[1]-tokenEnd[0]-1;q++){
+        printc(inp[p], position++);
         t2[q] = inp[p++];
     }
+    position++;
     t2[p++] = '\0';
     for(q=0;q<tokenEnd[2]-tokenEnd[1]-1;q++){
+        printc(inp[p], position++);
         t3[q] = inp[p++];
     }
+    position++;
     t3[p++] = '\0';
     
     if(equals(t1, "sum")){
@@ -142,15 +154,30 @@ char * funBegins(char * inp){
 }
 
 char * sumar(char * s1, char * s2){
- return itoa(atoi(s1)+atoi(s2),"", 10);
+ int ai = atoi(s1);
+ int bi = atoi(s2);
+ int s = ai + bi;
+ position++;
+ return itoa(s,"", 10);
 }
 
 int atoi(char * c){
-    int l = strlen(c);
+    unsigned int l = strlen(c);
     int result = 0;
-    for(int i=0; i<l; i++){
+    int i = 0;
+    int boo = 0;
+    //for(int i=0; i<l; i++){
+    position++;
+    while(c[i]!='\0'){
+        printc(c[i], position++);
+        if(c[i]=='-')boo=1;
         result = result * 10 + ( c[i] - '0' );
+        i++;
     }
+    if(boo){
+     result = result * -1;
+    }
+    position++;
     return result;
 }
 
@@ -325,4 +352,28 @@ char charByCode(int scancode){
  if(scancode == 0x39)return ' ';
  
  return '\0';
+}
+
+void  *memset(void *b, int c, int len)
+{
+  unsigned int i;
+  unsigned char *p = b;
+  i = 0;
+  while(len > 0)
+    {
+      *p = c;
+      p++;
+      len--;
+      if (*p == 0) //or if(!*p )
+        break;
+    }
+  return(b);
+}
+
+void *clean(char * t){
+    int i = 0;
+    while(t[i]!=0){
+        t[i] = 0;
+        t++;
+    }
 }
