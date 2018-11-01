@@ -109,8 +109,9 @@ void kmain(void)
   }
  }
 
+ position++;
+ print("*DEAD*");
  //INSERTAR LLAMADA PARA EL APAGADO DEL SISTEMA
- print("DEAD");
 
  return;
 }
