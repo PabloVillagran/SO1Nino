@@ -20,7 +20,11 @@ start:
       hlt       ;permite interrupciones
 
 stop:
-
+      mov ah,53h              ;this is an APM command
+      mov al,07h              ;Set the power state...
+      mov bx,0001h            ;...on all devices to...
+      mov cx,03h	      ;OFF
+      int 15h                 ;call the BIOS function through interrupt 15h
 
 section .bss
       ;seccion de bits vacios a manera de reservar memoria.
