@@ -1,0 +1,31 @@
+char * concat(char * a, char * b){
+    size_t blen = strlen(a)+strlen(b)+1;
+    char * buffer = malloc(blen);
+    int i = 0;
+    int j;
+    for(j = 0; j<strlen(a);j++){
+        buffer[i] = a[j];
+        i++;
+    }
+    for(j=0;j<strlen(b);j++){
+        buffer[i] = b[j];
+        i++;
+    }
+    
+    buffer[i+1] = '\0';
+    return buffer;
+}
+
+char * concatc(char * a, char b){
+    size_t blen = strlen(a)+2;
+    char * buffer = malloc(blen);
+    int i = 0;
+    int j;
+    for(j = 0; j<strlen(a);j++){
+        buffer[i] = a[j];
+        i++;
+    }
+    buffer[i] = b;
+    buffer[i+1] = '\0';
+    return buffer;
+}

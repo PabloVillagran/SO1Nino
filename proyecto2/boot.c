@@ -2,11 +2,15 @@ void clear();
 void draw();
 void print(char *str);
 void debugKeyPress();
-int strLenght(char *str);
 char * itoa(int value, char *result, int base);
 void printc(char c, int pos);
 char charByCode(int scancode);
 void cursor();
+void backSpace();
+void concat(char s1[], char s2[]);
+int strlen(char * str);
+char * funBegins(char * inp);
+int equals(char * a, char * b);
 
 #define OUTPUT_COLOR 0x0a
 #define BLINK_OUTPUT 0X8a
@@ -21,42 +25,138 @@ _Bool numLock;
 _Bool debug;
 
 char * vm;
-char * input;
 char * output;
+char * input;
 
 unsigned int scancode;
 unsigned char keyStatus;
 
 unsigned int position;
+unsigned int initPos;
+unsigned int n;
 
 void kmain(void)
 {
  vm = (char*)0xb8000; // array de caracteres en pantalla
  clear();
- debug = 1;
- input = "";
+ debug = 0;
+ n = 1;
  output = "Wooffer >";
- position = strLenght(output);
+ //position = strlen(output);
  draw();
- while(1){
-  scancode = inb(0x60); //puerto de recepcion de datos en teclado
-  keyStatus = inb(0x64); //puerto de estado de teclado
-  
-  if(keyStatus & 0x01){
+ initPos = position;
+ input = " ";
+ while(1){ 
+  if(inb(0x64) & 0x01){
+   scancode = inb(0x60); //puerto de recepcion de datos en teclado
    char cbCode = charByCode(scancode);
    if(cbCode!='\0')
    {
-    input = input+cbCode;
-    printc(cbCode, position);
-    position++;
-    cursor();
+    if(cbCode==8){
+     backSpace();
+     cursor();
+    }else if(cbCode == '\n'){
+     //captura y logica
+     int len = position - initPos;
+     position = initPos;
+     char in[len];
+     int k;
+     for(k = 0; k < len; k++){
+      in[k] = vm[position*2];
+      position++;
+     }
+     in[k] = '\0';
+     input = in;
+     position = (80*2*n);
+     ++n;
+     print(input);
+     position = (80*2*n);
+     ++n;
+     print(funBegins(input));
+     
+     //reset
+     vm[position*2] = ' ';
+     vm[position*2+1] = 0x01;
+     position = (80*2*n);
+     ++n;
+     draw();
+     initPos = position;
+    }else{
+     printc(cbCode, position);
+     position++;
+     cursor();
+    }
    }
   }
-  
-//  draw(); //dibuja resultado en pantalla;
-  if(debug)debugKeyPress();
  }
  return;
+}
+
+char * funBegins(char * inp){
+    int tokenEnd[3] = {0, 0, 0};
+    int p = 0;
+    int q = 0;
+    while(inp[p]!='\0'){
+        if(inp[p]==' '){
+            q++;
+        }
+        tokenEnd[q] = p++;
+    }
+    
+    char t1[tokenEnd[0]];
+    char t2[tokenEnd[1]-tokenEnd[0]];
+    char t3[tokenEnd[2]-tokenEnd[1]-1];
+    for(p=0;p<=tokenEnd[0];p++){
+        t1[p] = inp[p]; 
+    }
+    t1[p++] = '\0';
+    for(q=0;q<tokenEnd[1]-tokenEnd[0]-1;q++){
+        t2[q] = inp[p++];
+    }
+    t2[p++] = '\0';
+    for(q=0;q<tokenEnd[2]-tokenEnd[1]-1;q++){
+        t3[q] = inp[p++];
+    }
+    t3[p++] = '\0';
+    
+    if(equals(t1, "sum")){
+     return "SUMAR";
+    }else if(equals(t1, "prod")){
+     return "MULTIPLICAR";
+    }else if(equals(t1, "div")){
+     return "DIVIDIR";
+    }else if(equals(t1, "pow")){
+     return "POTENCIA";
+    }else if(equals(t1, "playdead")){
+     return "APAGAR";
+    }else if(equals(t1, "bark")){
+     return "WOOF";//reproducir sonidos??
+    }else{
+     return "No se reconoce la accion";
+    }
+}
+
+int equals(char * a, char * b){
+ unsigned int la = strlen(a);
+ unsigned int lb = strlen(b);
+ if(la != lb){ return 0;
+ }else{
+  la = 0;
+  while(a[la]!='\0'){
+   if(a[la]!=b[la]) return 0;
+   la++;
+  }
+ }
+ return 1;
+}
+
+void print(char *str){
+ unsigned int j = 0;
+ while(str[j] != '\0') {
+   printc(str[j], position);
+   position++;
+   ++j;
+ }
 }
 
 void printc(char c, int pos){
@@ -64,23 +164,22 @@ void printc(char c, int pos){
  vm[(pos*2)+1] = OUTPUT_COLOR;
 }
 
+void backSpace(){
+ if(position > initPos){
+  printc(' ', position);
+  position--;
+  printc(' ', position);
+ }
+}
+
 void draw(){
  unsigned int j = 0;
  unsigned int i = 0;
- unsigned int n = 1;
  /* Escritura de mensaje */
  while(output[j] != '\0') {
-  if(output[j] == '\n')
-  {//si el ascii es 10 (nueva linea)
-   position = (80*2*n)-2; //agrega el ancho de la fila al cursor
-   ++n;
-  }
-  else
-  {
-   printc(output[j], i);
-   i++;
-  }
-  ++j;
+   printc(output[j], position);
+   position++;
+   ++j;
  }
  cursor(i);
 }
@@ -89,7 +188,7 @@ void debugKeyPress(){
  vm[1997*2] = keyStatus;
  vm[1997*2+1] = DBCOLOR;
  char * valor = itoa(scancode, "", 16);
- int vLenght = strLenght(valor);
+ int vLenght = strlen(valor);
  if(vLenght<2){
   vm[1998*2] = '0';
   vm[1998*2+1] = DBCOLOR;
@@ -104,18 +203,28 @@ void debugKeyPress(){
 }
 
 void cursor(int pos){
- vm[(position+1)*2] = 219;
- vm[(position+1)*2+1] = BLINK_OUTPUT; 
+ vm[(position)*2] = 219;
+ vm[(position)*2+1] = BLINK_OUTPUT;
 }
 
 //Funcion que cuenta la cantidad de espacios en un string
-int strLenght(char *str){
+int strlen(char *str){
  int l = 0;
  while (str[l]){
   l++;
  }
  return l;
 }
+
+void concat(char s1[], char s2[]) {
+ int i, j;
+ i = strlen(s1);
+ for (j = 0; s2[j] != '\0'; i++, j++) {
+  s1[i] = s2[j];
+ }
+ s1[i] = '\0';
+}
+
 
 //Funcion que convierte de entero a string
 char * itoa (int value, char *result, int base)
@@ -191,6 +300,11 @@ char charByCode(int scancode){
  if(scancode == 0x30)return 'b';
  if(scancode == 0x31)return 'n';
  if(scancode == 0x32)return 'm';
+ 
+ if(scancode == 0x35)return '-';
+ if(scancode == 0x1c)return '\n';
+ if(scancode == 0x0e)return 8;
+ if(scancode == 0x39)return ' ';
  
  return '\0';
 }
