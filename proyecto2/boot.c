@@ -2,6 +2,7 @@ void clear();
 void draw();
 void print(char *str);
 void debugKeyPress();
+int atoi(char * c);
 char * itoa(int value, char *result, int base);
 void printc(char c, int pos);
 char charByCode(int scancode);
@@ -11,6 +12,7 @@ void concat(char s1[], char s2[]);
 int strlen(char * str);
 char * funBegins(char * inp);
 int equals(char * a, char * b);
+char * sumar(char * s1, char * s2);
 
 #define OUTPUT_COLOR 0x0a
 #define BLINK_OUTPUT 0X8a
@@ -56,6 +58,9 @@ void kmain(void)
      backSpace();
      cursor();
     }else if(cbCode == '\n'){
+     //limpia cursor
+     vm[position*2] = ' ';
+     vm[position*2+1] = 0x01;
      //captura y logica
      int len = position - initPos;
      position = initPos;
@@ -67,17 +72,17 @@ void kmain(void)
      }
      in[k] = '\0';
      input = in;
-     position = (80*2*n);
+     position = (80*n);
      ++n;
      print(input);
-     position = (80*2*n);
+     position = (80*n);
      ++n;
      print(funBegins(input));
      
      //reset
      vm[position*2] = ' ';
      vm[position*2+1] = 0x01;
-     position = (80*2*n);
+     position = (80*n);
      ++n;
      draw();
      initPos = position;
@@ -120,7 +125,7 @@ char * funBegins(char * inp){
     t3[p++] = '\0';
     
     if(equals(t1, "sum")){
-     return "SUMAR";
+     return sumar(t2, t3);
     }else if(equals(t1, "prod")){
      return "MULTIPLICAR";
     }else if(equals(t1, "div")){
@@ -134,6 +139,19 @@ char * funBegins(char * inp){
     }else{
      return "No se reconoce la accion";
     }
+}
+
+char * sumar(char * s1, char * s2){
+ return itoa(atoi(s1)+atoi(s2),"", 10);
+}
+
+int atoi(char * c){
+    int l = strlen(c);
+    int result = 0;
+    for(int i=0; i<l; i++){
+        result = result * 10 + ( c[i] - '0' );
+    }
+    return result;
 }
 
 int equals(char * a, char * b){
