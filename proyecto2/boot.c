@@ -2,8 +2,8 @@ void clear();
 void draw();
 void print(char *str);
 void debugKeyPress();
-int atoi(char * c);
-char * itoa(int value, char *result, int base);
+long atoi(char * c);
+char * itoa(long value, char *result, int base);
 void printc(char c, int pos);
 char charByCode(int scancode);
 void cursor();
@@ -13,6 +13,8 @@ int strlen(char * str);
 char * funBegins(char * inp);
 int equals(char * a, char * b);
 char * sumar(char * s1, char * s2);
+char * multi(char * s1, char * s2);
+char * divin(char * s1, char * s2);
 void  *memset(void *b, int c, int len);
 void * clean(char * t);
 
@@ -75,6 +77,11 @@ void kmain(void)
      }
      in[k] = '\0';
      input = in;
+     if(n>24){
+	clear();
+        n=1;
+	position = 0;
+     }
      position = (80*n);
      ++n;
      print(input);
@@ -119,18 +126,15 @@ char * funBegins(char * inp){
     clean(t3);
     for(p=0;p<=tokenEnd[0];p++){
         t1[p] = inp[p]; 
-        printc(inp[p], position++);
     }
     position++;
     t1[p++] = '\0';
     for(q=0;q<tokenEnd[1]-tokenEnd[0]-1;q++){
-        printc(inp[p], position++);
         t2[q] = inp[p++];
     }
     position++;
     t2[p++] = '\0';
     for(q=0;q<tokenEnd[2]-tokenEnd[1]-1;q++){
-        printc(inp[p], position++);
         t3[q] = inp[p++];
     }
     position++;
@@ -139,9 +143,9 @@ char * funBegins(char * inp){
     if(equals(t1, "sum")){
      return sumar(t2, t3);
     }else if(equals(t1, "prod")){
-     return "MULTIPLICAR";
+     return multi(t2, t3);
     }else if(equals(t1, "div")){
-     return "DIVIDIR";
+     return divin(t2, t3);
     }else if(equals(t1, "pow")){
      return "POTENCIA";
     }else if(equals(t1, "playdead")){
@@ -154,30 +158,39 @@ char * funBegins(char * inp){
 }
 
 char * sumar(char * s1, char * s2){
- int ai = atoi(s1);
- int bi = atoi(s2);
- int s = ai + bi;
- position++;
- return itoa(s,"", 10);
+ return itoa(atoi(s1) + atoi(s2),"", 10);
 }
 
-int atoi(char * c){
-    unsigned int l = strlen(c);
-    int result = 0;
-    int i = 0;
+char * multi(char * s1, char * s2){
+ return itoa(atoi(s1) * atoi(s2), "", 10);
+}
+
+char * divin(char * s1, char * s2){
+ int i2 =atoi(s2);
+ if(i2 == 0){ return "DIV/0";}
+ else {
+  int i1 = atoi(s1); 
+  if((i1%i2)==0){return itoa(i1 / i2, "", 10);}
+  else{
+  print("mod ");
+   return itoa(i1 % i2, "", 10);}
+ }
+}
+
+long atoi(char * c){
+    unsigned long l = strlen(c);
+    long result = 0;
+    long i = 0;
     int boo = 0;
     //for(int i=0; i<l; i++){
-    position++;
     while(c[i]!='\0'){
-        printc(c[i], position++);
         if(c[i]=='-')boo=1;
-        result = result * 10 + ( c[i] - '0' );
+        else result = result * 10 + ( c[i] - '0' );
         i++;
     }
     if(boo){
      result = result * -1;
     }
-    position++;
     return result;
 }
 
@@ -272,10 +285,10 @@ void concat(char s1[], char s2[]) {
 
 
 //Funcion que convierte de entero a string
-char * itoa (int value, char *result, int base)
+char * itoa (long value, char *result, int base)
 {
     char* ptr = result, *ptr1 = result, tmp_char;
-    int tmp_value;
+    long tmp_value;
 
     do {
         tmp_value = value;
