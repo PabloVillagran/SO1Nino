@@ -9,23 +9,23 @@ section .text	;esta seccion delimita banderas para el booteo en GRUB
                 ;realiza la operacion sobre los ultimos valores
 
 global start
+global reboot
 
 extern kmain	;funcion kmain definida en el archivo c
-
+      
 start:
-                ;funcion principal
-      cli       ;cambia una bandera interna para el bloqueo de interrupciones
-      mov esp, stack_space ;asigna puntero para pila de instrucciones
-      call kmain ;llama al kernel
-      hlt       ;permite interrupciones
+        ;funcion principal
+	cli       ;cambia una bandera interna para el bloqueo de interrupciones
+	mov esp, stack_space ;asigna puntero para pila de instrucciones
+	call kmain ;llama al kernel
+	hlt
 
-stop:
-      mov ah,53h              ;this is an APM command
-      mov al,07h              ;Set the power state...
-      mov bx,0001h            ;...on all devices to...
-      mov cx,03h	      ;OFF
-      int 15h                 ;call the BIOS function through interrupt 15h
+reboot:
+	mov al, 0xFE
+	out 0x64, al
+
 
 section .bss
       ;seccion de bits vacios a manera de reservar memoria.
 stack_space: resb 8192 ;reserva 8KB para la pila de instrucciones
+

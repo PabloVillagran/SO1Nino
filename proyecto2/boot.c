@@ -19,6 +19,12 @@ char * powe(char * s1, char * s2);
 void  *memset(void *b, int c, int len);
 void * clean(char * t);
 
+void beep();
+static void play_sound(int nFrecuence);
+static void nosound();
+
+extern int reboot();
+
 #define OUTPUT_COLOR 0x0a
 #define BLINK_OUTPUT 0X8a
 #define DBCOLOR      0x17
@@ -43,7 +49,7 @@ unsigned int position;
 unsigned int initPos;
 unsigned int n;
 
-void kmain(void)
+int kmain(void)
 {
  vm = (char*)0xb8000; // array de caracteres en pantalla
  clear();
@@ -90,6 +96,8 @@ void kmain(void)
      ++n;
      char * inp = funBegins(input);
      print(inp);
+     if(equals(inp, "REBOOT")
+      reboot();
      if(equals(inp, "APAGAR"))
       break;
      
@@ -111,9 +119,11 @@ void kmain(void)
 
  position++;
  print("*DEAD*");
+ clear();
  //INSERTAR LLAMADA PARA EL APAGADO DEL SISTEMA
-
- return;
+ //reboot();
+ 
+ return 0;
 }
 
 char * funBegins(char * inp){
@@ -158,8 +168,11 @@ char * funBegins(char * inp){
     }else if(equals(t1, "pow")){
      return powe(t2, t3);
     }else if(equals(t1, "playdead")){
+     return "REBOOT";
+    }else if(equals(t1, "die")){
      return "APAGAR";
     }else if(equals(t1, "bark")){
+     beep();
      return "WOOF";//reproducir sonidos??
     }else{
      return "No se reconoce la accion";
@@ -410,3 +423,38 @@ void *clean(char * t){
         t++;
     }
 }
+
+ //Play sound using built in speaker
+ static void play_sound(int nFrequence) {
+ 	int Div;
+ 	short tmp;
+ 
+        //Set the PIT to the desired frequency
+ 	Div = 1193180 / nFrequence;
+ 	outb(0x43, 0xb6);
+ 	outb(0x42, (short) (Div) );
+ 	outb(0x42, (short) (Div >> 8));
+ 
+        //And play the sound using the PC speaker
+ 	tmp = inb(0x61);
+  	if (tmp != (tmp | 3)) {
+ 		outb(0x61, tmp | 3);
+ 	}
+ }
+ 
+ //make it shutup
+ static void nosound() {
+ 	short tmp = inb(0x61) & 0xFC;
+ 
+ 	outb(0x61, tmp);
+ }
+ 
+ //Make a beep
+ void beep() {
+ 	 play_sound(1000);
+ 	 for (int c = 1; c <= 32767; c++)
+		for (int d = 1; d <= 32767; d++)
+		{}
+ 	 nosound();
+          //set_PIT_2(old_frequency);
+ }
