@@ -10,6 +10,7 @@ section .text	;esta seccion delimita banderas para el booteo en GRUB
 
 global start
 global reboot
+global shutdown_success
 
 extern kmain	;funcion kmain definida en el archivo c
       
@@ -18,11 +19,21 @@ start:
 	cli       ;cambia una bandera interna para el bloqueo de interrupciones
 	mov esp, stack_space ;asigna puntero para pila de instrucciones
 	call kmain ;llama al kernel
-	hlt
+	je shutdown_success
+	
 
 reboot:
 	mov al, 0xFE
 	out 0x64, al
+
+shutdown_success:
+	mov ax, 0x1000
+	mov ax, ss
+	mov sp, 0xf000
+	mov ax, 0x5307
+	mov bx, 0x0001
+	mov cx, 0x0003
+	int 0x15
 
 
 section .bss

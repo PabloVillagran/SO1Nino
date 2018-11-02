@@ -96,7 +96,7 @@ int kmain(void)
      ++n;
      char * inp = funBegins(input);
      print(inp);
-     if(equals(inp, "REBOOT")
+     if(equals(inp, "REBOOT"))
       reboot();
      if(equals(inp, "APAGAR"))
       break;
