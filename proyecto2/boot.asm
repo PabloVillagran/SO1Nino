@@ -26,6 +26,8 @@ reboot:
 	mov al, 0xFE
 	out 0x64, al
 
+	;Instrucciones finales que causan el reinicio.
+
 shutdown_success:
 	mov ax, 0x1000
 	mov ax, ss
@@ -35,6 +37,7 @@ shutdown_success:
 	mov cx, 0x0003
 	int 0x15
 
+	;Instrucciones finales que causan el apagado.
 
 section .bss
       ;seccion de bits vacios a manera de reservar memoria.
